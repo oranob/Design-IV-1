@@ -1,0 +1,55 @@
+const int LEYE = 10;
+const int REYE = 9;
+const int LWIN = 8;
+const int LWLOW = 7;
+const int LWHIGH = 3;
+const int RWLOW = 6;
+const int RWHIGH = 5;
+const int RWIN = 4;
+
+
+void setup() {
+
+  Serial.begin(9600);
+  pinMode( LEYE, INPUT );
+  pinMode( REYE, INPUT );
+  pinMode( LWIN, INPUT);
+  pinMode( LWLOW, OUTPUT);
+  pinMode( LWHIGH, OUTPUT);
+  pinMode( RWLOW, OUTPUT);
+  pinMode( RWHIGH, OUTPUT);
+  pinMode( RWIN, INPUT);  
+}
+
+void loop() {
+ if( digitalRead( LEYE ) == HIGH ){
+    Serial.print("low  ");
+  }else{
+    Serial.print("high ");
+  }
+
+  if( digitalRead( REYE ) == HIGH ){
+    Serial.println("low  ");
+  }else{
+    Serial.println("high ");
+  }
+  
+if(digitalRead( LEYE ) == LOW ){
+digitalWrite(LWLOW, LOW);
+digitalWrite(LWHIGH, HIGH);}
+else {
+digitalWrite(LWLOW, LOW);
+digitalWrite(LWHIGH, LOW);
+}
+
+
+if(digitalRead( REYE ) == LOW ){
+digitalWrite(RWLOW, LOW);
+digitalWrite(RWHIGH, HIGH);}
+else{
+digitalWrite(RWLOW, LOW);
+digitalWrite(RWHIGH, LOW);  
+}
+
+   //delay(1000);
+   }
