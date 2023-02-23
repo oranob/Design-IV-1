@@ -1,0 +1,140 @@
+#include <WiFiNINA.h>
+
+char ssid[] = "LAPTOP-ETF87F9D 0946";
+char pass[] = "0i971L1;";
+
+WiFiClient client;
+IPAddress server(10,6,3,77);
+
+const int LEYE = 10;
+const int REYE = 9;
+
+const int LWPWM = 16;
+const int LWLOW = 7;
+const int LWHIGH = 3;
+
+const int RWLOW = 6;
+const int RWHIGH = 5;
+const int RWPWM = 17;
+
+const int trig = 21;
+const int echo = 20;
+
+int C = 'B';
+
+void setup() {  
+
+  Serial.begin(9600);
+
+  WiFi.begin(ssid, pass);
+  client.connect(server,5000);
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address:");
+  Serial.println(ip);
+  
+  pinMode( LEYE, INPUT );
+  pinMode( REYE, INPUT );
+  
+  pinMode( LWPWM, OUTPUT);
+  pinMode( LWLOW, OUTPUT);
+  pinMode( LWHIGH, OUTPUT);
+
+  pinMode( RWLOW, OUTPUT);
+  pinMode( RWHIGH, OUTPUT);
+  pinMode( RWPWM, OUTPUT);  
+
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+}
+
+void loop() {
+  client.write(".");
+  //Serial.println(".");
+  char c = client.read();
+ if( c == 'A' || c == 'B'){
+   //Serial.write(c);
+    Serial.println(".");
+    C = c;
+    Serial.write(C);
+ }
+ if(C == 'A'){
+
+  digitalWrite(trig, HIGH);
+  delay(0.01);
+  Serial.println("t");
+  digitalWrite(trig,LOW);
+
+  
+  if (digitalRead( echo ) == LOW){
+   digitalWrite(LWLOW, LOW);
+   digitalWrite(LWHIGH, LOW);
+
+   digitalWrite(RWLOW, LOW);
+   digitalWrite(RWHIGH, LOW);
+  // Serial.println("e");
+  }
+  if (digitalRead( echo ) == HIGH){
+ if(digitalRead( LEYE ) == HIGH && digitalRead( REYE ) == HIGH ){//forward
+   analogWrite(LWPWM, 255);
+   digitalWrite(LWLOW, LOW);
+   digitalWrite(LWHIGH, HIGH);
+   
+   analogWrite(RWPWM, 255);
+   digitalWrite(RWLOW, LOW);
+   digitalWrite(RWHIGH, HIGH);
+
+  //Serial.print("f");
+    }
+
+if (digitalRead( LEYE ) == LOW && digitalRead( REYE ) == LOW){// stop
+
+   digitalWrite(LWLOW, LOW);
+   digitalWrite(LWHIGH, LOW);
+
+   digitalWrite(RWLOW, LOW);
+   digitalWrite(RWHIGH, LOW);
+
+    // Serial.print("x");
+  }
+
+  /*if (digitalRead( LEYE ) == HIGH && digitalRead( REYE ) == HIGH){
+
+   digitalWrite(LWLOW, HIGH);
+   digitalWrite(LWHIGH, LOW);
+
+   digitalWrite(RWLOW, HIGH);
+   digitalWrite(RWHIGH, LOW);
+
+     Serial.print("b");
+}*/
+
+if (digitalRead( LEYE ) == HIGH && digitalRead( REYE ) == LOW){//right
+
+   //analogWrite(LWPWM, 230);//90%
+   digitalWrite(LWLOW, LOW);
+   digitalWrite(LWHIGH, HIGH);
+   
+
+   analogWrite(RWPWM, 64);//25%
+   digitalWrite(RWLOW, LOW);
+   digitalWrite(RWHIGH, HIGH);
+
+    // Serial.print("r");
+}
+
+if (digitalRead( LEYE ) == LOW && digitalRead( REYE ) == HIGH){
+
+   analogWrite(LWPWM, 64);//25%
+   digitalWrite(LWLOW, LOW);
+   digitalWrite(LWHIGH, HIGH);
+
+   
+   //analogWrite(RWPWM, 230);//90%
+   digitalWrite(RWLOW, LOW);
+   digitalWrite(RWHIGH, HIGH);
+
+   //Serial.println("l");
+}
+  }
+  }}
+
