@@ -4,7 +4,7 @@ char ssid[] = "LAPTOP-ETF87F9D 0946";
 char pass[] = "0i971L1;";
 
 WiFiClient client;
-IPAddress server(10,6,3,77);
+IPAddress server(192,168,1,9);
 
 const int LEYE = 10;
 const int REYE = 9;
@@ -20,7 +20,8 @@ const int RWPWM = 17;
 const int trig = 21;
 const int echo = 20;
 
-int C = 'B';
+int C = 'B'; 
+char message = 'o'; 
 
 void setup() {  
 
@@ -48,32 +49,41 @@ void setup() {
 }
 
 void loop() {
-  client.write(".");
+  
+  //client.write(".");
   //Serial.println(".");
   char c = client.read();
  if( c == 'A' || c == 'B'){
    //Serial.write(c);
-    Serial.println(".");
+   // Serial.println(".");
     C = c;
     Serial.write(C);
  }
- if(C == 'A'){
 
+ if(C == 'B'){
+   analogWrite(LWPWM, 0);
+   analogWrite(RWPWM, 0);
+ }
+ if(C == 'A'){
+  client.write(message);
   digitalWrite(trig, HIGH);
   delay(0.01);
-  Serial.println("t");
+  //Serial.println("t");
   digitalWrite(trig,LOW);
 
   
   if (digitalRead( echo ) == LOW){
+   message = 'o';
    digitalWrite(LWLOW, LOW);
    digitalWrite(LWHIGH, LOW);
 
    digitalWrite(RWLOW, LOW);
    digitalWrite(RWHIGH, LOW);
+  
   // Serial.println("e");
   }
   if (digitalRead( echo ) == HIGH){
+  message = '.';    
  if(digitalRead( LEYE ) == HIGH && digitalRead( REYE ) == HIGH ){//forward
    analogWrite(LWPWM, 255);
    digitalWrite(LWLOW, LOW);
@@ -94,7 +104,7 @@ if (digitalRead( LEYE ) == LOW && digitalRead( REYE ) == LOW){// stop
    digitalWrite(RWLOW, LOW);
    digitalWrite(RWHIGH, LOW);
 
-    // Serial.print("x");
+     //Serial.print("x");
   }
 
   /*if (digitalRead( LEYE ) == HIGH && digitalRead( REYE ) == HIGH){
@@ -119,7 +129,7 @@ if (digitalRead( LEYE ) == HIGH && digitalRead( REYE ) == LOW){//right
    digitalWrite(RWLOW, LOW);
    digitalWrite(RWHIGH, HIGH);
 
-    // Serial.print("r");
+     //Serial.print("r");
 }
 
 if (digitalRead( LEYE ) == LOW && digitalRead( REYE ) == HIGH){
@@ -137,4 +147,6 @@ if (digitalRead( LEYE ) == LOW && digitalRead( REYE ) == HIGH){
 }
   }
   }}
+
+
 
