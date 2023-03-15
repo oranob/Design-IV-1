@@ -1,0 +1,43 @@
+//PID constants
+double kp = 1
+double ki = 0
+double kd = 0
+
+unsigned long currentTime, previousTime;
+double elapsedTime;
+double error;
+double lastError;
+double actualdistance, setdistance;
+int speed;
+double cumError, rateError;
+
+void setup(){
+        setdistance = 0;                          //set point at zero degrees
+}    
+
+
+void loop(){
+        input = analogRead(A0);                //read from rotary encoder connected to A0
+        speed = computePID(actualdistance);
+        delay(100);
+        analogWrite(3, output);                //control the motor based on PID value
+
+}
+
+double computePID(double actdis){     
+        currentTime = millis();                //get current time
+        elapsedTime = (double)(currentTime - previousTime);        //compute time elapsed from previous computation
+        
+        error =  setdistance - actdis;                   // determine error
+        cumError += error * elapsedTime;                // compute integral
+        rateError = (error - lastError)/elapsedTime;   // compute derivative
+
+        int new_speed = kp*error + ki*cumError + kd*rateError;                //PID output               
+
+        lastError = error;                                //remember current error
+        previousTime = currentTime;                        //remember current time
+
+
+	  if (new_speed > 255){new_speed =  255;}
+        return new_speed;                                        //have function return the PID output
+}
