@@ -1,0 +1,74 @@
+import controlP5.*;
+import processing.net.*;
+ControlP5 cp5;
+char X ;
+
+Server myServer;
+//int c1, c2;
+//String C;
+//float n, n1;
+int myColor = color(255);
+
+PFont fontButton;
+
+void setup(){
+ myServer = new Server(this,5000);
+ cp5 = new ControlP5(this);
+ fontButton = createFont("helvetica", 22); 
+ size(600,800);
+ noStroke();
+ println("Hello World");
+ //X ='.';
+   
+   
+ cp5.addButton("Go")
+ .setValue(0)
+ .setPosition(25,25)
+ .setSize(550,27)
+ .setFont(fontButton)
+ ;
+ 
+ cp5.addButton("Stop")
+ .setValue(0)
+ .setPosition(25,65)
+ .setSize(550,27)
+ .setFont(fontButton)
+ ;
+}
+
+
+void draw(){
+  background(myColor);
+ // myColor = lerpColor(c1,c2,n);
+  //n += (1 - n)* 0.1;
+  
+   PFont font;
+   font = loadFont("OCRAExtended-48.vlw");
+
+   fill(0, 0, 0);
+   textFont(font,20);
+   textAlign(LEFT);
+   text("Current Speed of the Buggy: x m/s",50, 125);
+   text("Current Speed of the Object Ahead: x m/s", 50, 155);
+
+  Client thisClient = myServer.available();
+  if (thisClient != null){
+    String whatClientSaid = thisClient.readString();
+    if (whatClientSaid != null){
+      println(whatClientSaid);
+      myServer.write('.');
+    }
+  }
+}
+
+
+public void Go(){
+  println("go");
+  //X = 'A';
+  myServer.write('A');
+  }
+  
+  public void Stop(){
+   println("stop");
+  myServer.write('B');
+  }
