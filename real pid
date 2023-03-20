@@ -1,0 +1,149 @@
+#include <afstandssensor.h>
+double kp = -31;
+double ki = 0;
+//0.00000000000000000000000000000000000000000000000000001;
+double kd = -4.5;
+//0.000001;
+
+unsigned long currentTime, previousTime = 0;
+double elapsedTime;
+double error;
+double lastError;
+double actualdistance;
+double cumError, rateError;
+
+
+
+const int LEYE = 10;
+const int REYE = 9;
+
+const int LWPWM = 16;
+const int LWLOW = 7;
+const int LWHIGH = 3;
+
+const int RWLOW = 6;
+const int RWHIGH = 5;
+const int RWPWM = 17;
+
+const int trig = 21;
+const int echo = 20;
+
+AfstandsSensor afstandssensor(trig, echo);
+
+const double desired_distance = 15 ;
+const double setdistance = (desired_distance - (desired_distance/2)); 
+
+int time;
+int distance;
+int tot_time;
+int n_speed = 0;
+int speed_modified;
+
+int C = 'A'; 
+char message = 'o';
+
+void setup() {  
+
+  Serial.begin(9600);
+
+   
+  pinMode( LEYE, INPUT );
+  pinMode( REYE, INPUT );
+  
+  pinMode( LWPWM, OUTPUT);
+  pinMode( LWLOW, OUTPUT);
+  pinMode( LWHIGH, OUTPUT);
+
+  pinMode( RWLOW, OUTPUT);
+  pinMode( RWHIGH, OUTPUT);
+  pinMode( RWPWM, OUTPUT);  
+
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+
+}
+
+void rightwheel(int sp, int high, int low);
+void leftwheel(int sp, int high, int low);
+double computePID(double actdis);
+
+
+
+void loop() {
+if(C == 'A'){
+  
+  distance = afstandssensor.afstandCM();
+  /*digitalWrite(trig, HIGH);
+  time = tot_time;
+  
+  //Serial.println("t");
+  digitalWrite(trig,LOW);
+
+  
+  if (digitalRead( echo ) == LOW){
+   message = 'o';
+   time = pulseIn(echo, HIGH);
+   distance = (0.340*0.5)*(time);
+   if (distance != 0){
+   
+   
+*/
+  speed_modified = computePID(distance);
+  delay(0.1);
+  
+
+  n_speed =  speed_modified;
+
+  if(n_speed < 30 ){
+    n_speed = 0;
+  }
+if(n_speed > 255 ){
+  n_speed =  255;
+}  
+leftwheel(n_speed, 1, 0);
+rightwheel(n_speed, 1, 0);
+
+}
+//}
+//}
+
+Serial.print("distance: ");     
+Serial.println(distance);
+
+Serial.print("speed_m: ");     
+Serial.println(speed_modified);
+
+
+
+Serial.print("n_speed: ");
+Serial.println(n_speed); 
+
+}
+
+void leftwheel(int sp, int high, int low){
+  analogWrite(LWPWM, sp);
+  digitalWrite(LWLOW, low);
+  digitalWrite(LWHIGH, high);
+}
+
+void rightwheel(int sp, int high, int low){
+  analogWrite(RWPWM, sp);
+  digitalWrite(RWLOW, low);
+  digitalWrite(RWHIGH, high);
+}
+
+double computePID(double actdis){     
+        currentTime = millis();                //get current time
+        elapsedTime = (double)(currentTime - previousTime);        //compute time elapsed from previous computation
+       // Serial.println(elapsedTime);
+        error =  setdistance - actdis;                   // determine error
+        cumError += error * elapsedTime;                // compute integral
+        rateError = (error - lastError)/elapsedTime;   // compute derivative
+
+        int new_speed = kp*error + ki*cumError + kd*rateError;                //PID output               
+
+        lastError = error;                                //remember current error
+        previousTime = currentTime;                        //remember current time
+
+        return new_speed;                                        //have function return the PID output
+}
