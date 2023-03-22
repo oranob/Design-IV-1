@@ -1,0 +1,101 @@
+int LENC;
+int RENC;
+
+float countright = 0;
+float countleft = 0;
+float rotationright = 0;
+float rotationleft = 0;
+float totaldistance = 0;
+float currentdistance = 0;
+float prevdistance = 0;
+unsigned long totaltime = 0;
+unsigned long currenttime = 0;
+unsigned long previoustime = 0;
+float currentspeed;
+
+
+void setup() {
+  
+  pinMode(2, INPUT_PULLUP);
+  pinMode(3, INPUT_PULLUP);
+  
+  
+  Serial.begin(9600); 
+
+  //Interrupts to determine when the north poles go past the south poles on the encoder.
+  attachInterrupt(2, changeright, CHANGE); 
+  attachInterrupt(3, changeleft, CHANGE);
+
+  }
+
+void loop() {
+  
+  //Read in encoder pins
+  RENC = digitalRead(2);
+  LENC = digitalRead(3);
+  Serial.print(LENC);
+  Serial.println(RENC);
+  
+  //Count of the encoders
+  Serial.print("Count of right wheel: ");
+  Serial.println(countright);
+  Serial.print("Count of left wheel: ");
+  Serial.println(countleft);
+  
+  //Rotation calculations
+  //Encoder's are placed on the back of the motor, so this is taken into account for calculations for the rotation of wheel.
+  //i.e. 1 wheel spin = 960 rotations
+  rotationright = (countright)/(120*8);
+  rotationleft = (countleft)/(120*8);
+  Serial.print("Rotation of right wheel: ");
+  Serial.println(rotationright);
+  Serial.print("Rotation of left wheel: ");
+  Serial.println(rotationleft);
+
+  //Distance calculations
+  //one rotation 204.2mm or 0.2mm per one magentic changes.
+  totaldistance = ((rotationleft + rotationright)/2) * (204.2);
+  Serial.print("Distance: ");
+  Serial.print(totaldistance);
+  Serial.println("mm");
+  currentdistance = totaldistance - prevdistance;
+  prevdistance = totaldistance;
+  
+
+  //time calculations
+   totaltime = millis();   
+   currenttime = (totaltime - previoustime);
+   previoustime = totaltime; 
+   Serial.print("Total time: ");
+   Serial.println(totaltime);
+   Serial.print("Current time: ");
+   Serial.println(currenttime);
+   Serial.print("Previous time: ");
+   Serial.println(previoustime);
+
+    //Speed Calculations
+   currentspeed = buggyspeed(currenttime,currentdistance);
+   Serial.print("Speed: ");
+   Serial.print(currentspeed);
+   Serial.println(" cm/s");
+   delay(1000);
+}
+
+//the count for the encoder functions
+void changeright(){
+  countright++;
+}
+
+void changeleft(){
+countleft++;
+}
+
+//speed of the buggy function
+float buggyspeed(unsigned long timenew, float distance){
+  
+  float time1 = timenew/1000;
+  float dis1 = distance/10;
+  float s = (dis1/time1);
+
+  return s; 
+}
